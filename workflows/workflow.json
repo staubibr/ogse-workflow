@@ -1,0 +1,107 @@
+{
+	"metadata": {
+		"title": "GIS Emergency Model",
+		"language": ["en-US"],
+		"description": ["Oil price model for a user selected area in Alberta.", "Workflow generated model."],
+		"subject": ["oil", "gis", "simple", "economic"],
+		"spatial coverage": [{
+				"placename": ["Alberta"],
+				"extent": [{
+						"reference": "epsg:4326",
+						"x min": -120.0,
+						"x max": -110.0,
+						"y min": 49.0,
+						"y max": 60.0
+					}
+				]
+			}
+		]
+	},
+    "scenario": {
+        "models": [{
+                "id": "Price Generator",
+                "type": "26066ec1-8150-498e-9396-cf9af98a45d8",
+                "table": "oil_rings",
+                "properties": ["prices"]
+            }, {
+                "id": "GDP Cell",
+                "type": "21567c86-34f0-4f13-a6f0-ddc05ca45fe5",
+                "table": "grid_cells",
+                "properties": ["idnum"]
+            }
+        ],
+		"couplings": [{
+			"table": "grid_cells",
+			"from": {
+				"field": "oil_ring_id",
+				"model": "Price Generator",
+				"port": "out_1"
+			},
+			"to": {
+				"field": "id",
+				"model": "GDP Cell",
+				"port": "in_1"
+			}
+			
+		}]
+    },
+    "tasks": [{
+            "name": "make_point",
+            "source": null,
+            "params": {
+                "point": "@experiment:center",
+                "attributes": null
+            }
+        }, {
+            "name": "project",
+            "source": "@step:1",
+            "params": {
+                "srid": 3347
+            }
+        }, {
+            "name": "ring",
+            "loop": "@experiment:rings",
+            "source": "@step:2",
+            "params": {
+                "id": "@iterator:id",
+                "min": "@iterator:min",
+                "max": "@iterator:max"
+            }
+        }, {
+            "name": "project",
+            "source": "@step:3",
+            "params": {
+                "srid": 4326
+            }
+        }, {
+            "name": "add_column",
+            "source": "@step:4",
+            "params": {
+                "name": "prices",
+                "type": "decimal(5,2)[]"
+            }
+        }, {
+            "name": "set_values",
+            "loop": "@experiment:rings",
+            "source": "@step:5",
+            "params": {
+                "column": "prices",
+                "value": "@iterator:prices",
+                "use_quotes": false,
+                "where": {
+                    "field": "id",
+                    "value": "@iterator:id"
+                }
+            },
+            "output": "oil_rings"
+        }, {
+            "name": "intersection",
+            "source": "public.alberta_grid_4326",
+            "params": {
+                "table": "@step:6",
+                "join_field": "oil_ring_id"
+            },
+            "output": "grid_cells"
+        }
+    ]
+}
