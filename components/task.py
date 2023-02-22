@@ -51,7 +51,7 @@ class Task(JsonObject):
     def __init__(self, json):
         super().__init__(json)
         self.output = json["output"] if "output" in json else None
-        self.params = json["params"]
+        self.params = json["params"] if "params" in json else None
 
     def execute(self, db):
         raise Exception("process function not implemented for task {0}.".format(self.name))

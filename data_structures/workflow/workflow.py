@@ -11,6 +11,8 @@ from data_structures.scenario.scenario import Scenario
 from util import tools
 
 
+# TODO: SQL Injection (https://stackoverflow.com/questions/45128902/psycopg2-and-sql-injection-security)
+# TODO: Error messaging and user feedback when wrong types in Cadmium
 class Workflow(JsonObject):
     @property
     def metadata(self):
@@ -60,11 +62,10 @@ class Workflow(JsonObject):
         Logger.info('Workflow execution done.')
 
     def get_full_metadata(self, lom_path):
+        types = [ModelAtomic.from_library(lom_path, i_set.type).to_json() for i_set in self.scenario.model_sets]
+        types.insert(0, ModelCoupled(self.metadata).to_json())
 
-        return {
-            "top": ModelCoupled(self.metadata).to_json(),
-            "atomics": [ModelAtomic.from_library(lom_path, i_set.type).to_json() for i_set in self.scenario.model_sets]
-        }
+        return types;
 
     def write_metadata(self, lom_path, output):
         Logger.info('Assembling metadata for coupled model...')
