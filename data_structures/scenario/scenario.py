@@ -45,7 +45,13 @@ class Scenario(JsonObject):
 
         Logger.info('Preparing instances and couplings for Cadmium...')
         for i_set in self.model_sets:
-            cadmium_id = i_set.set_cadmium_index(cadmium_id)
+            i_set.properties.insert(0, "cadmium_id")
+
+            # cadmium needs the id to be a string.
+            for m in i_set.models:
+                m[0] = str(m[0])
+
+            # cadmium_id = i_set.set_cadmium_index(cadmium_id)
 
         Logger.info('Scenario preparation done.')
 
@@ -54,9 +60,3 @@ class Scenario(JsonObject):
             "instances": [i_set.to_json() for i_set in self.model_sets],
             "couplings": [c_set.to_json() for c_set in self.coupling_sets],
         }
-
-    def write(self, output):
-        Logger.info('Writing scenario file to disk...')
-        with open(os.path.join(output, "scenario.json"), "w", encoding="utf8") as f:
-            f.write(json.dumps(self.to_json()))
-

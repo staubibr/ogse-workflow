@@ -29,11 +29,7 @@ f_experiment.close()
 
 db = DB()
 
-Logger.info('Connecting to database...')
 db.connect("service", "service", "postgres", "localhost", "5432")
-
-Logger.info('Creating database schema...')
-db.execute("CREATE SCHEMA {0}".format(db.schema))
 
 try:
     workflow = Workflow(j_workflow)
@@ -41,20 +37,15 @@ try:
     workflow.scenario.build(db)
 
 except Exception as ex:
-    Logger.error(str(ex))
     db.rollback()
-    Logger.info('Dropping database schema...')
-    db.execute("DROP SCHEMA {0} CASCADE".format(db.schema))
-    raise ex
-
-finally:
-    # db.execute("DROP SCHEMA {0} CASCADE".format(db.schema))
     db.close()
 
-# Writing to sample.json
-workflow.scenario.write(args.output)
+    Logger.error(str(ex))
+    raise ex
 
-# TODO: Maybe OGSE should have a common config file to hold these folders.
+workflow.write_geojson(args.output, db)
+workflow.write_scenario(args.output)
 workflow.write_metadata("D:\\4. Development\\ogse-files\\models\\", args.output)
+db.close()
 
 Logger.info('Workflow execution done.')
