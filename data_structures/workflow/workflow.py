@@ -74,3 +74,20 @@ class Workflow(JsonObject):
         Logger.info('Writing metadata file to disk...')
         with open(os.path.join(output, "metadata.json"), "w", encoding="utf8") as f:
             f.write(json.dumps(metadata))
+
+    def write_geojson(self, output, db):
+        Logger.info('Writing geojson files to disk...')
+        for t in self.tasks:
+            if t.is_temp:
+                continue
+
+            sql = "SELECT json_build_object('type', 'FeatureCollection', 'features', json_agg(ST_AsGeoJSON(t.*)::json)) FROM {0} as t(id, geom);"
+            geojson = db.select(sql.format(t.output))[0][0]
+
+            with open(os.path.join(output, "{0}.geojson".format(t.json["output"])), "w", encoding="utf8") as f:
+                f.write(json.dumps(geojson))
+
+    def write_scenario(self, output):
+        Logger.info('Writing scenario file to disk...')
+        with open(os.path.join(output, "scenario.json"), "w", encoding="utf8") as f:
+            f.write(json.dumps(self.scenario.to_json()))
