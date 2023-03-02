@@ -1,0 +1,126 @@
+{
+	"metadata": {
+		"title": "Oil Price GDP Model",
+		"language": ["en-US"],
+		"description": ["Oil price GDP model for a user selected CSD in Alberta.", "Workflow generated model."],
+		"subject": ["oil", "gdp", "gis", "simple", "economic"],
+		"spatial coverage": [{
+				"placename": ["Alberta"],
+				"extent": [{
+						"reference": "epsg:4326",
+						"x min": -120.0,
+						"x max": -110.0,
+						"y min": 49.0,
+						"y max": 60.0
+					}
+				]
+			}
+		]
+	},
+    "scenario": {
+        "models": [{
+                "id": "Oil Price Generator",
+                "type": "26066ec1-8150-498e-9396-cf9af98a45d8",
+                "table": "oil_prices",
+                "properties": ["price_index", "prices"]
+            }, {
+                "id": "GDP Cell",
+                "type": "21567c86-34f0-4f13-a6f0-ddc05ca45fe5",
+                "table": "grid_cells",
+                "properties": ["idnum", "gdp_hist"]
+            }
+        ],
+		"couplings": [{
+			"table": "grid_cells",
+			"from": {
+				"field": "boundary_id",
+				"model": "Oil Price Generator",
+				"port": "oil_price_generator_out"
+			},
+			"to": {
+				"field": "id",
+				"model": "GDP Cell",
+				"port": "gdp_cell_in"
+			}
+			
+		}]
+    },
+    "tasks": [{
+            "name": "select",
+            "source": "alberta_csd_4326",
+            "params": {
+                "where": {
+					"csduid": "@experiment:csduid"
+				}
+            }
+        }, {
+			"name": "add_column",
+			"source": "@step:1",
+			"params": {
+				"name": "price_index",
+				"type": "integer"
+			}
+        }, {
+			"name": "add_column",
+			"source": "@step:2",
+			"params": {
+				"name": "prices",
+				"type": "decimal(5,2)[]"
+			}
+		}, {
+			"name": "set_values",
+			"source": "@step:3",
+			"params": {
+				"column": "price_index",
+				"value": "@experiment:oil_price_index",
+				"use_quotes": false
+			}
+		}, {
+			"name": "set_values",
+			"source": "@step:4",
+			"params": {
+				"column": "prices",
+				"value": "@experiment:oil_prices",
+				"use_quotes": false
+			},
+			"output": "oil_prices"
+		}, {
+            "name": "intersection",
+            "source": "public.alberta_grid_4326",
+            "params": {
+                "table": "@step:1",
+                "join_field": "boundary_id"
+            }
+		}, {
+			"name": "add_column",
+			"source": "@step:6",
+			"params": {
+				"name": "gdp_hist",
+				"type": "bigint[]"
+			}
+		}, {
+			"name": "set_values",
+			"loop": "@experiment:grid_cells",
+            "source": "@step:7",
+            "params": {
+                "column": "gdp_hist",
+                "value": "{0,0,0}",
+                "use_quotes": false
+			}
+        }, {
+			"name": "set_values",
+			"loop": "@experiment:grid_cells",
+            "source": "@step:8",
+            "params": {
+                "column": "gdp_hist",
+                "value": "@iterator:gdp_hist",
+                "use_quotes": false,
+                "where": {
+                    "field": "idnum",
+                    "value": "@iterator:idnum"
+                }
+			},
+			"output": "grid_cells"
+		}
+    ]
+}

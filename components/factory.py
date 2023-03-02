@@ -8,6 +8,7 @@ from tasks.task_make_point import TaskMakePoint
 from tasks.task_union import TaskUnion
 from tasks.task_centroid import TaskCentroid
 from tasks.task_closest import TaskClosest
+from tasks.task_select import TaskSelect
 
 
 class Factory:
@@ -38,3 +39,4 @@ Factory.register("make_point", TaskMakePoint)
 Factory.register("union", TaskUnion)
 Factory.register("centroid", TaskCentroid)
 Factory.register("closest", TaskClosest)
+Factory.register("select", TaskSelect)
