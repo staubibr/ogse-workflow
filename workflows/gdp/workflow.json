@@ -8,10 +8,10 @@
 				"placename": ["Alberta"],
 				"extent": [{
 						"reference": "epsg:4326",
-						"x min": -120.0,
-						"x max": -110.0,
-						"y min": 49.0,
-						"y max": 60.0
+						"x min": -114.0,
+						"x max": -113.0,
+						"y min": 50.0,
+						"y max": 52.0
 					}
 				]
 			}
@@ -20,12 +20,12 @@
     "scenario": {
         "models": [{
                 "id": "Oil Price Generator",
-                "type": "26066ec1-8150-498e-9396-cf9af98a45d8",
+                "type": "9b27362b-d8bd-4de4-a0c7-0288b5f47b75",
                 "table": "oil_prices",
                 "properties": ["price_index", "prices"]
             }, {
                 "id": "GDP Cell",
-                "type": "21567c86-34f0-4f13-a6f0-ddc05ca45fe5",
+                "type": "9f998018-bf1c-48dd-b300-59ad478cd071",
                 "table": "grid_cells",
                 "properties": ["idnum", "gdp_hist"]
             }
