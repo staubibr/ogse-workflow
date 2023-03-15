@@ -91,26 +91,10 @@
                 "table": "@step:1",
                 "join_field": "boundary_id"
             }
-		}, {
-			"name": "add_column",
-			"source": "@step:6",
-			"params": {
-				"name": "gdp_hist",
-				"type": "bigint[]"
-			}
-		}, {
-			"name": "set_values",
-			"loop": "@experiment:grid_cells",
-            "source": "@step:7",
-            "params": {
-                "column": "gdp_hist",
-                "value": "{0,0,0}",
-                "use_quotes": false
-			}
         }, {
 			"name": "set_values",
 			"loop": "@experiment:grid_cells",
-            "source": "@step:8",
+            "source": "@step:6",
             "params": {
                 "column": "gdp_hist",
                 "value": "@iterator:gdp_hist",
