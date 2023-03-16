@@ -43,13 +43,17 @@ class Scenario(JsonObject):
         for c_set in self.coupling_sets:
             c_set.build(db, index)
 
+        # id = 0
+
         Logger.info('Preparing instances and couplings for Cadmium...')
         for i_set in self.model_sets:
             i_set.properties.insert(0, "cadmium_id")
 
             # cadmium needs the id to be a string.
             for m in i_set.models:
+                # id = id + 1
                 m[0] = str(m[0])
+                # m[0] = str(id)
 
             # cadmium_id = i_set.set_cadmium_index(cadmium_id)
 
